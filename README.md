@@ -1,5 +1,26 @@
 # OpenAPI Generator for Laravel Routes
 
+A PHP/Composer package for generating OpenAPI 3.1+ documentation based on analysis of Laravel routes, controllers, Spatie Data, and FormRequest.
+
+## Features
+
+- ⚡️ **Automatic route analysis** Laravel (`php artisan route:list`)
+- 🎯 **Controller parsing** and their methods- PHP 8.1+
+- Laravel 9.0+
+- OpenAPI 3.1+
+
+## License
+
+MIT LicenseHPDoc documentation
+- 📝 **Spatie Data support** as DTOs with type hints
+- ✅ **FormRequest analysis** for parameter validation
+- 🔄 **Automatic response detection** from Resources
+- 📊 **OpenAPI 3.0+ generation** JSON/YAML
+- 🎨 **Built-in Swagger UI and ReDoc support**
+- ⚡ **Artisan command** for quick generation
+
+## Installationtor for Laravel Routes
+
 Paczka PHP/Composer do generowania dokumentacji OpenAPI 3.1+ na podstawie analizy routów Laravel, kontrolerów, Spatie Data i FormRequest.
 
 ## Funkcje
@@ -19,23 +40,23 @@ Paczka PHP/Composer do generowania dokumentacji OpenAPI 3.1+ na podstawie analiz
 composer require pjadanowski/openapi-generator
 ```
 
-### Publikacja konfiguracji
+### Publishing configuration
 
 ```bash
 php artisan vendor:publish --tag=openapi-generator-config
 ```
 
-## Użycie
+## Usage
 
-### Podstawowe użycie
+### Basic usage
 
-Generator automatycznie analizuje wszystkie ruty API w aplikacji:
+The generator automatically analyzes all API routes in the application:
 
 ```bash
-# Generowanie dokumentacji z routów
+# Generate documentation from routes
 php artisan openapi:generate
 
-# Z niestandardowymi opcjami
+# With custom options
 php artisan openapi:generate \
     --output=public/api-docs.json \
     --title="My API" \
@@ -44,7 +65,7 @@ php artisan openapi:generate \
     --format=yaml
 ```
 
-### Przykład kontrolera
+### Controller example
 
 ```php
 <?php
@@ -169,47 +190,47 @@ class UserResource extends JsonResource
 }
 ```
 
-## Jak to działa
+## How it works
 
-1. **Analiza routów**: Generator skanuje `php artisan route:list` dla routów API
-2. **Parsowanie kontrolerów**: Analizuje metody kontrolerów i ich parametry
-3. **Wykrywanie typów**:
-   - **Type hints** → automatyczne mapowanie na OpenAPI typy
-   - **Spatie Data** → rekurencyjna analiza właściwości DTO
-   - **FormRequest** → analiza reguł walidacji
-4. **Responses**: Automatyczne wykrywanie na podstawie:
-   - `return new UserResource($user)` → pojedynczy obiekt
-   - `UserResource::collection($users)` → tablica obiektów
-   - Adnotacje PHPDoc `@response`
+1. **Route analysis**: Generator scans `php artisan route:list` for API routes
+2. **Controller parsing**: Analyzes controller methods and their parameters
+3. **Type detection**:
+   - **Type hints** → automatic mapping to OpenAPI types
+   - **Spatie Data** → recursive analysis of DTO properties
+   - **FormRequest** → validation rules analysis
+4. **Responses**: Automatic detection based on:
+   - `return new UserResource($user)` → single object
+   - `UserResource::collection($users)` → array of objects
+   - PHPDoc annotations `@response`
 
-## 🤖 Automatyczne Response Codes
+## 🤖 Automatic Response Codes
 
-Generator inteligentnie dodaje standardowe response codes Laravel **bez konieczności ręcznego dokumentowania**:
+The generator intelligently adds standard Laravel response codes **without requiring manual documentation**:
 
-### Automatycznie wykrywane:
-- **201** dla `store()`, `create()` metod
-- **204** dla `destroy()`, `delete()` metod  
-- **404** gdy metoda ma parametr `$id` lub zawiera `show`, `update`, `destroy`
-- **422** gdy metoda ma `FormRequest` lub `Spatie Data` 
-- **403** dla operacji modyfikujących (`store`, `update`, `destroy`)
-- **400, 401, 500** zawsze dodawane
+### Automatically detected:
+- **201** for `store()`, `create()` methods
+- **204** for `destroy()`, `delete()` methods  
+- **404** when method has `$id` parameter or contains `show`, `update`, `destroy`
+- **422** when method has `FormRequest` or `Spatie Data` 
+- **403** for modifying operations (`store`, `update`, `destroy`)
+- **400, 401, 500** always added
 
-### Przykład - bez dokumentacji:
+### Example - without documentation:
 ```php
-// Automatycznie wygeneruje responses: 201, 403, 422, 400, 401, 500
+// Automatically generates responses: 201, 403, 422, 400, 401, 500
 public function store(StoreUserRequest $request): JsonResponse
 {
     return new UserResource(User::create($request->validated()));
 }
 
-// Automatycznie wygeneruje responses: 200, 404, 400, 401, 500  
+// Automatically generates responses: 200, 404, 400, 401, 500  
 public function show(int $id): JsonResponse
 {
     return new UserResource(User::findOrFail($id));
 }
 ```
 
-### Kombinacja z PHPDoc:
+### Combined with PHPDoc:
 ```php
 /**
  * @response 409 Email already exists
@@ -217,46 +238,46 @@ public function show(int $id): JsonResponse
  */
 public function store(UserData $data): JsonResponse
 {
-    // Generator doda: 201, 409, 429, 403, 422, 400, 401, 500
+    // Generator will add: 201, 409, 429, 403, 422, 400, 401, 500
 }
 ```
 
-👉 **Szczegóły**: Zobacz [docs/AUTOMATIC_RESPONSES.md](docs/AUTOMATIC_RESPONSES.md)
+👉 **Details**: See [docs/AUTOMATIC_RESPONSES.md](docs/AUTOMATIC_RESPONSES.md)
 
-## Wyświetlanie dokumentacji
+## Displaying documentation
 
-Po wygenerowaniu dokumentacji:
+After generating documentation:
 
 - **Swagger UI**: `http://your-app.com/api/documentation`
 - **ReDoc**: `http://your-app.com/api/redoc`
 - **Raw JSON**: `http://your-app.com/api/openapi.json`
 
-## Konfiguracja
+## Configuration
 
 ```php
 <?php
 
 return [
-    // Informacje o API
+    // API information
     'info' => [
         'title' => env('APP_NAME', 'Laravel') . ' API Documentation',
         'version' => '1.0.0',
         'description' => 'API documentation generated from routes',
     ],
 
-    // Konfiguracja wyjścia
+    // Output configuration
     'output' => [
         'path' => 'public/openapi.json',
         'format' => 'json',
     ],
 
-    // Filtry routów
+    // Route filters
     'routes' => [
         'include_patterns' => ['api/*'],
         'exclude_patterns' => ['api/internal/*'],
     ],
 
-    // Konfiguracja Swagger UI
+    // Swagger UI configuration
     'swagger' => [
         'enabled' => true,
         'route' => '/api/documentation',
@@ -265,40 +286,40 @@ return [
 ];
 ```
 
-## Obsługiwane funkcje
+## Supported features
 
-### ✅ Analiza routów
-- Automatyczne wykrywanie routów API
-- Parametry ścieżki (`{id}`, `{slug?}`)
-- Metody HTTP (GET, POST, PUT, PATCH, DELETE)
+### ✅ Route analysis
+- Automatic API route detection
+- Path parameters (`{id}`, `{slug?}`)
+- HTTP methods (GET, POST, PUT, PATCH, DELETE)
 
-### ✅ Kontrolery
-- Dokumentacja PHPDoc
-- Adnotacje `@response` z kodami statusu
-- Automatyczne wykrywanie description
+### ✅ Controllers
+- PHPDoc documentation
+- `@response` annotations with status codes
+- Automatic description detection
 
-### ✅ Parametry wejściowe
-- **Spatie Data** → pełna analiza typu
-- **FormRequest** → reguły walidacji → OpenAPI schema
-- **Type hints** → podstawowe typy PHP
+### ✅ Input parameters
+- **Spatie Data** → full type analysis
+- **FormRequest** → validation rules → OpenAPI schema
+- **Type hints** → basic PHP types
 
 ### ✅ Responses
-- **JsonResource** → analiza `toArray()` 
-- **ResourceCollection** → automatyczna detekcja tablic
+- **JsonResource** → `toArray()` analysis 
+- **ResourceCollection** → automatic array detection
 - **PHPDoc annotations** → `@response 200 UserResource`
 
-### ✅ Obsługiwane typy
-- Podstawowe: `string`, `int`, `float`, `bool`, `array`
+### ✅ Supported types
+- Basic: `string`, `int`, `float`, `bool`, `array`
 - Nullable: `?string`, `string|null`
 - Union types: `string|int`
 - Collections: `Collection<UserData>`
 - Nested Data objects
 
-## Wymagania
+## Requirements
 
 - PHP 8.1+
 - Laravel 9.0+
-- OpenAPI 3.1+
+- OpenAPI 3.0+
 
 ## Licencja
 
