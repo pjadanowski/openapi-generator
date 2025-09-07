@@ -1,14 +1,14 @@
-# Automatyczne Response Codes - Przykłady
+# Automatic Response Codes - Examples
 
-Generator automatycznie dodaje standardowe response codes Laravel na podstawie kontekstu metod kontrolera, nawet jeśli nie ma jawnej dokumentacji w PHPDoc.
+The generator automatically adds standard Laravel response codes based on the context of controller methods, even if there's no explicit documentation in PHPDoc.
 
-## 🎯 Inteligentne wykrywanie Response Codes
+## 🎯 Intelligent Response Code Detection
 
-### Przykład 1: Podstawowy kontroler bez dokumentacji
+### Example 1: Basic controller without documentation
 ```php
 class UserController extends Controller
 {
-    // Automatycznie wygeneruje:
+    // Automatically generates:
     // 200: List retrieved successfully
     // 400: Bad Request  
     // 401: Unauthorized
@@ -18,36 +18,36 @@ class UserController extends Controller
         return response()->json(User::all());
     }
 
-    // Automatycznie wygeneruje:
+    // Automatically generates:
     // 201: Resource created successfully
     // 400: Bad Request
     // 401: Unauthorized
-    // 403: Forbidden (bo tworzy resource)
-    // 422: Validation error (bo ma FormRequest)
+    // 403: Forbidden (because it creates resource)
+    // 422: Validation error (because it has FormRequest)
     // 500: Internal Server Error
     public function store(StoreUserRequest $request): JsonResponse
     {
         return response()->json(User::create($request->validated()), 201);
     }
 
-    // Automatycznie wygeneruje:
+    // Automatically generates:
     // 200: Resource retrieved successfully  
     // 400: Bad Request
     // 401: Unauthorized
-    // 404: Resource not found (bo ma parametr $id)
+    // 404: Resource not found (because it has $id parameter)
     // 500: Internal Server Error
     public function show(int $id): JsonResponse
     {
         return response()->json(User::findOrFail($id));
     }
 
-    // Automatycznie wygeneruje:
+    // Automatically generates:
     // 200: Resource updated successfully
     // 400: Bad Request
     // 401: Unauthorized
-    // 403: Forbidden (bo modyfikuje)
-    // 404: Resource not found (bo ma $id)
-    // 422: Validation error (bo ma UserData)
+    // 403: Forbidden (because it modifies)
+    // 404: Resource not found (because it has $id)
+    // 422: Validation error (because it has UserData)
     // 500: Internal Server Error
     public function update(int $id, UserData $userData): JsonResponse
     {
@@ -56,12 +56,12 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    // Automatycznie wygeneruje:
+    // Automatically generates:
     // 204: Resource deleted successfully
     // 400: Bad Request
     // 401: Unauthorized  
-    // 403: Forbidden (bo usuwa)
-    // 404: Resource not found (bo ma $id)
+    // 403: Forbidden (because it deletes)
+    // 404: Resource not found (because it has $id)
     // 500: Internal Server Error
     public function destroy(int $id): JsonResponse
     {
@@ -71,7 +71,7 @@ class UserController extends Controller
 }
 ```
 
-### Przykład 2: Kombinacja PHPDoc + automatyczne responses
+### Example 2: Combination of PHPDoc + automatic responses
 ```php
 class ProductController extends Controller
 {
@@ -83,11 +83,11 @@ class ProductController extends Controller
      */
     public function index(ProductFilterRequest $filters): JsonResponse
     {
-        // Generator doda automatycznie:
-        // 200: (z PHPDoc) Products retrieved successfully  
-        // 422: Validation error (bo ma ProductFilterRequest)
-        // 429: (z PHPDoc) Too many requests
-        // + standardowe: 400, 401, 500
+        // Generator will automatically add:
+        // 200: (from PHPDoc) Products retrieved successfully  
+        // 422: Validation error (because it has ProductFilterRequest)
+        // 429: (from PHPDoc) Too many requests
+        // + standard: 400, 401, 500
         
         return ProductResource::collection(
             Product::filter($filters)->paginate()
@@ -102,41 +102,41 @@ class ProductController extends Controller
      */
     public function store(ProductData $data): JsonResponse
     {
-        // Generator użyje:
-        // 201: (z PHPDoc) Product created
-        // 409: (z PHPDoc) Product already exists  
-        // 422: Validation error (bo ma ProductData)
-        // + standardowe: 400, 401, 403, 500
+        // Generator will use:
+        // 201: (from PHPDoc) Product created
+        // 409: (from PHPDoc) Product already exists  
+        // 422: Validation error (because it has ProductData)
+        // + standard: 400, 401, 403, 500
         
         return new ProductResource(Product::create($data->toArray()));
     }
 }
 ```
 
-## 🔧 Logika automatycznego wykrywania
+## 🔧 Automatic detection logic
 
-### Status Codes dla Success Response:
+### Status Codes for Success Response:
 - `store()`, `create()` → **201 Created**
 - `destroy()`, `delete()` → **204 No Content**  
-- Wszystkie inne → **200 OK**
+- All others → **200 OK**
 
-### Automatyczne Error Responses:
+### Automatic Error Responses:
 
-#### Zawsze dodawane:
+#### Always added:
 - **400** Bad Request
 - **401** Unauthorized  
 - **500** Internal Server Error
 
-#### Na podstawie kontekstu:
+#### Based on context:
 
-**404 Not Found** - dodawane gdy:
-- Metoda zawiera `show`, `update`, `destroy`
-- Ma parametr `$id`, `$user_id`, `$post_id`, itp.
+**404 Not Found** - added when:
+- Method contains `show`, `update`, `destroy`
+- Has parameter `$id`, `$user_id`, `$post_id`, etc.
 
-**422 Validation Error** - dodawane gdy:
-- Ma parametr `FormRequest`
-- Ma parametr `Spatie Data`
-- Zawiera schema błędów walidacji:
+**422 Validation Error** - added when:
+- Has `FormRequest` parameter
+- Has `Spatie Data` parameter
+- Contains validation error schema:
 ```json
 {
   "message": "The given data was invalid.",
@@ -147,11 +147,11 @@ class ProductController extends Controller
 }
 ```
 
-**403 Forbidden** - dodawane gdy:
-- Metoda zawiera `store`, `update`, `destroy`
-- Operacje modyfikujące dane
+**403 Forbidden** - added when:
+- Method contains `store`, `update`, `destroy`
+- Data modification operations
 
-### Przykład wygenerowanego OpenAPI:
+### Example of generated OpenAPI:
 ```json
 {
   "paths": {
@@ -177,9 +177,9 @@ class ProductController extends Controller
 }
 ```
 
-## ⚙️ Konfiguracja
+## ⚙️ Configuration
 
-Możesz dostosować domyślne responses w `config/openapi-generator.php`:
+You can customize default responses in `config/openapi-generator.php`:
 
 ```php
 'controllers' => [
@@ -190,7 +190,7 @@ Możesz dostosować domyślne responses w `config/openapi-generator.php`:
         '403' => 'Forbidden', 
         '404' => 'Not Found',
         '422' => 'Validation Error',
-        '429' => 'Too Many Requests',  // Dodaj custom
+        '429' => 'Too Many Requests',  // Add custom
         '500' => 'Internal Server Error',
     ],
 ],
@@ -198,20 +198,20 @@ Możesz dostosować domyślne responses w `config/openapi-generator.php`:
 
 ## 🎨 Best Practices
 
-1. **Kombinuj PHPDoc + automatyczne**: 
-   - Używaj `@response` dla specjalnych przypadków
-   - Pozwól generatorowi dodać standardowe
+1. **Combine PHPDoc + automatic**: 
+   - Use `@response` for special cases
+   - Let the generator add standard ones
 
-2. **Nazwij metody semantycznie**:
+2. **Name methods semantically**:
    - `index()`, `show()`, `store()`, `update()`, `destroy()`
-   - Generator rozpozna kontekst automatycznie
+   - Generator will recognize context automatically
 
-3. **Używaj type hints**:
+3. **Use type hints**:
    - `FormRequest` → 422 Validation Error
    - `int $id` → 404 Not Found
    - `Data` objects → 422 Validation Error
 
-4. **Dokumentuj wyjątki**:
+4. **Document exceptions**:
 ```php
 /**
  * @response 409 Email already exists
@@ -220,4 +220,4 @@ Możesz dostosować domyślne responses w `config/openapi-generator.php`:
 public function store(UserData $data): JsonResponse
 ```
 
-W ten sposób masz **kompletną dokumentację** bez konieczności ręcznego opisywania każdego standardowego response code! 🚀
+This way you have **complete documentation** without the need to manually describe every standard response code! 🚀
