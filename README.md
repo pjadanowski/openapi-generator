@@ -248,7 +248,7 @@ public function store(UserData $data): JsonResponse
 
 After generating documentation:
 
-- **Swagger UI**: `http://your-app.com/api/documentation`
+- **Swagger UI**: `http://your-app.com/api/docs`
 - **ReDoc**: `http://your-app.com/api/redoc`
 - **Raw JSON**: `http://your-app.com/api/openapi.json`
 
@@ -280,7 +280,7 @@ return [
     // Swagger UI configuration
     'swagger' => [
         'enabled' => true,
-        'route' => '/api/documentation',
+        'route' => '/api/docs',
         'middleware' => ['web'],
     ],
 ];

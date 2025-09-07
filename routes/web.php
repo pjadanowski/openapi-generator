@@ -5,7 +5,7 @@ use Pjadanowski\OpenApiGenerator\Http\Controllers\SwaggerController;
 
 Route::group(['prefix' => 'api'], function () {
     // Swagger UI route
-    Route::get('documentation', [SwaggerController::class, 'index'])
+    Route::get('docs', [SwaggerController::class, 'index'])
         ->name('openapi.swagger')
         ->middleware(config('openapi-generator.swagger.middleware', ['web']));
 
